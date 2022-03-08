@@ -1,6 +1,21 @@
 const root = document.querySelector('#root');
 console.log(root);
 
+function RenderData({ data, name, handleClick }) {
+    return (
+        <div className="member_container">
+            <h2>list member of {name} class</h2>
+            <ul>
+                {data.length > 0 && data.map((member, index) => {
+                    return (
+                        <li key={member.name}>name: {member.name} - age: {member.age} <button onClick={() => handleClick(index)}>transfer</button></li>
+                    )
+                }) || <p>empty class</p>}
+            </ul>
+        </div>
+    )
+}
+
 function App() {
     const [listReact, setListReact] = React.useState([
         { name: "Đinh Tuấn Anh", age: 20 },
@@ -12,9 +27,17 @@ function App() {
         { name: "Ngô Huỳnh Đức", age: 19 },
         { name: "Nguyễn Mạnh Dũng", age: 18 },
     ]);
-    const [nameMember, setNameMember] = React.useState('')
-    const [ageMember, setAgeMember] = React.useState('')
-    const [type, setType] = React.useState('React')
+    const [nameMember, setNameMember] = React.useState('');
+    const [ageMember, setAgeMember] = React.useState('');
+    const [type, setType] = React.useState('React');
+
+    React.useEffect(() => {
+        if (listReact.length == 0) {
+            alert("Warning: React class is empty now")
+        } else if (listJava.length == 0) {
+            alert("Warning: Java class is empty now")
+        }
+    }, [listReact, listJava])
 
     const handleTransferReact = (index) => {
         const memberTransfer = listReact.splice(index, 1)
@@ -57,34 +80,11 @@ function App() {
         setType(value);
     }
 
-    if (listReact.length == 0) {
-        alert("Warning: React class is empty now")
-    } else if (listJava.length == 0) {
-        alert("Warning: Java class is empty now")
-    }
-
     return (
         <div className="App">
-            <div className="member_container">
-                <h2>list member of React class</h2>
-                <ul>
-                    {listReact.length > 0 && listReact.map((member, index) => {
-                        return (
-                            <li key={member.name}>name: {member.name} - age: {member.age} <button onClick={() => handleTransferReact(index)}>transfer</button></li>
-                        )
-                    }) || <p>empty class</p>}
-                </ul>
-            </div>
-            <div className="member_container">
-                <h2>list member of Java class</h2>
-                <ul>
-                    {listJava.length > 0 && listJava.map((member, index) => {
-                        return (
-                            <li key={member.name}>name: {member.name} - age: {member.age} <button onClick={() => handleTransferJava(index)}>transfer</button></li>
-                        )
-                    }) || <p>empty class</p>}
-                </ul>
-            </div>
+            <RenderData data={listReact} name="Java" handleClick={handleTransferReact} />
+            <RenderData data={listJava} name="Java" handleClick={handleTransferJava} />
+
             <div className="form_container">
                 <h2>Form add member</h2>
                 <form className="form_box" onSubmit={handleSubmit}>
