@@ -82,7 +82,7 @@ function App() {
 
     return (
         <div className="App">
-            <RenderData data={listReact} name="Java" handleClick={handleTransferReact} />
+            <RenderData data={listReact} name="React" handleClick={handleTransferReact} />
             <RenderData data={listJava} name="Java" handleClick={handleTransferJava} />
 
             <div className="form_container">
