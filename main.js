@@ -67,6 +67,7 @@ function App() {
                 { name: nameMember, age: ageMember }
             ])
         }
+        setType('React')
         document.querySelector(".form_box").reset();
     }
 
