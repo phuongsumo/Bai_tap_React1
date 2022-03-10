@@ -1,6 +1,6 @@
 const root = document.querySelector('#root');
 
-function RenderData({ data, name, handleClick, handleEdit }) {
+function RenderData({ data, name, handleClick, handleEdit, handleDelete }) {
     return (
         <div className="member_container">
             <h2>list member of {name} class</h2>
@@ -11,6 +11,7 @@ function RenderData({ data, name, handleClick, handleEdit }) {
                             name: {member.name} - age: {member.age}
                             <button onClick={() => handleClick(index)}>Transfer</button>
                             <button onClick={() => handleEdit(member, index)}>Edit</button>
+                            <button onClick={() => handleDelete(index)}>Delete</button>
                         </li>
                     )
                 }) || <p>empty class</p>}
@@ -30,14 +31,16 @@ function App() {
         { name: "Ngô Huỳnh Đức", age: 19 },
         { name: "Nguyễn Mạnh Dũng", age: 18 },
     ]);
-
     const [data, setData] = React.useState({
         name: '',
         age: '',
         type: 'react'
     });
-
     const [showAdd, setShowAdd] = React.useState(true);
+
+    const [searchInput, setSearchInput] = React.useState('');
+    const [listSearch, setListSearch] = React.useState([]);
+
 
     React.useEffect(() => {
         if (listReact.length == 0) {
@@ -134,19 +137,78 @@ function App() {
         })
     }
 
+    // Delete member
+    const handleDeleteReactMember = (i) => {
+        listReact.splice(i, 1)
+        setListReact([
+            ...listReact
+        ])
+    }
+    const handleDeleteJavaMember = (i) => {
+        listJava.splice(i, 1)
+        setListJava([
+            ...listJava
+        ])
+    }
+
+    // Search member
+    const handleChangeSearch = (value) => {
+        setListSearch([])
+        setSearchInput(value);
+    }
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        const searchCase = searchInput.toUpperCase();
+        listReact.map(member => {
+            const mem = member.name.toUpperCase();
+            if (mem.includes(searchCase)) {
+                listSearch.push(member);
+                setListSearch(listSearch)
+            }
+        });
+        listJava.map(member => {
+            const mem = member.name.toUpperCase();
+            if (mem.includes(searchCase)) {
+                listSearch.push(member);
+                setListSearch(listSearch)
+            }
+        });
+
+        setSearchInput('')
+    }
+
+    // Sort member
+    const handleSort = (e) => {
+        if (e === 'big') {
+            listReact.sort((a, b) => b.age - a.age)
+            setListReact([...listReact])
+            listJava.sort((a, b) => b.age - a.age)
+            setListJava([...listJava])
+        } else if (e === 'small') {
+            listReact.sort((a, b) => a.age - b.age)
+            setListReact([...listReact])
+            listJava.sort((a, b) => a.age - b.age)
+            setListJava([...listJava])
+        }
+    }
+
     return (
         <div className="App">
+            <div>Sort by age: <button onClick={() => handleSort('big')}>Từ lớn đến bé</button><button onClick={() => handleSort('small')}>Từ bé đến lớn</button></div>
             <RenderData
                 data={listReact}
                 name="React"
                 handleClick={handleTransferReact}
                 handleEdit={handleEditUserReact}
+                handleDelete={handleDeleteReactMember}
             />
             <RenderData
                 data={listJava}
                 name="Java"
                 handleClick={handleTransferJava}
                 handleEdit={handleEditUserJava}
+                handleDelete={handleDeleteJavaMember}
             />
 
             {showAdd &&
@@ -221,6 +283,30 @@ function App() {
                     </form>
                 </div>
             }
+            <div className="form_container">
+                <h2 style={{ color: 'blue' }}>Search member</h2>
+                <form className="form_box" onSubmit={handleSearch}>
+                    <label>
+                        Search:
+                        <input
+                            onChange={(e) => handleChangeSearch(e.target.value)}
+                            required="required"
+                            value={searchInput}
+                            type="text"
+                            name="search"
+                            placeholder="Tìm kiếm..."
+                        />
+                    </label>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+            <ul>
+                {listSearch && listSearch.map((member, index) => {
+                    return (
+                        <li key={index}>name: {member.name} - age: {member.age}</li>
+                    )
+                })}
+            </ul>
         </div>
     )
 }
