@@ -4,7 +4,7 @@ function RenderData({ data, name, handleClick, handleEdit, handleDelete, total }
     return (
         <div className="member_container">
             <h2>list member of {name} class</h2>
-            <p>Tổng số tuổi thành viên: {total}</p>
+            <p>Tổng số tuổi thành viên: {total} (Sử dụng useMemo)</p>
             <ul>
                 {data.length > 0 && data.map((member, index) => {
                     return (
