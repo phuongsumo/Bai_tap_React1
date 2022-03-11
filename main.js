@@ -1,9 +1,10 @@
 const root = document.querySelector('#root');
 
-function RenderData({ data, name, handleClick, handleEdit, handleDelete }) {
+function RenderData({ data, name, handleClick, handleEdit, handleDelete, total }) {
     return (
         <div className="member_container">
             <h2>list member of {name} class</h2>
+            <p>Tổng số tuổi thành viên: {total}</p>
             <ul>
                 {data.length > 0 && data.map((member, index) => {
                     return (
@@ -66,6 +67,7 @@ function App() {
         ])
     };
 
+    const inputRef = React.useRef()
     const handleEditUserReact = (user, index) => {
         setData({
             ...user,
@@ -73,6 +75,7 @@ function App() {
             index: index
         });
         setShowAdd(false);
+        inputRef.current.focus();
     }
 
     const handleEditUserJava = (user, index) => {
@@ -82,6 +85,7 @@ function App() {
             index: index
         });
         setShowAdd(false);
+        inputRef.current.focus();
     }
 
     // Add member
@@ -92,7 +96,7 @@ function App() {
                 ...listReact,
                 {
                     name: data.name,
-                    age: data.age
+                    age: Number(data.age)
                 }
             ])
         } else if (data.type === 'java') {
@@ -100,7 +104,7 @@ function App() {
                 ...listJava,
                 {
                     name: data.name,
-                    age: data.age
+                    age: Number(data.age)
                 }
             ])
         }
@@ -116,10 +120,10 @@ function App() {
         e.preventDefault();
         if (data.type === 'react') {
             listReact[data.index] = data
-            setListReact(listReact)
+            setListReact([...listReact])
         } else if (data.type === 'java') {
             listJava[data.index] = data
-            setListJava(listJava)
+            setListJava([...listJava])
         };
 
         setData({
@@ -131,9 +135,17 @@ function App() {
     }
 
     const handleChange = (e) => {
-        setData({
-            ...data,
-            [e.target.name]: e.target.value
+        setData(() => {
+            if (e.target.name === 'age') {
+                return {
+                    ...data,
+                    [e.target.name]: Number(e.target.value)
+                }
+            }
+            return {
+                ...data,
+                [e.target.name]: e.target.value
+            }
         })
     }
 
@@ -174,7 +186,6 @@ function App() {
                 setListSearch(listSearch)
             }
         });
-
         setSearchInput('')
     }
 
@@ -193,6 +204,27 @@ function App() {
         }
     }
 
+    // Thực hành useMemo, chức năng tìm xem đội nào già hơn, hi hi :3
+    const totalJava = React.useMemo(() => {
+
+        const result = listJava.reduce((result, item) => {
+            console.log('render lai');
+            return result + item.age
+        }, 0);
+
+        return result;
+    }, [listJava, listReact])
+
+    const totalReact = React.useMemo(() => {
+
+        const result = listReact.reduce((result, item) => {
+            console.log('render lai');
+            return result + item.age
+        }, 0);
+
+        return result;
+    }, [listReact, listJava])
+
     return (
         <div className="App">
             <div>Sort by age: <button onClick={() => handleSort('big')}>Từ lớn đến bé</button><button onClick={() => handleSort('small')}>Từ bé đến lớn</button></div>
@@ -202,6 +234,7 @@ function App() {
                 handleClick={handleTransferReact}
                 handleEdit={handleEditUserReact}
                 handleDelete={handleDeleteReactMember}
+                total={totalReact}
             />
             <RenderData
                 data={listJava}
@@ -209,80 +242,51 @@ function App() {
                 handleClick={handleTransferJava}
                 handleEdit={handleEditUserJava}
                 handleDelete={handleDeleteJavaMember}
+                total={totalJava}
             />
 
-            {showAdd &&
-                <div className="form_container">
+
+            <div className="form_container">
+                {showAdd &&
                     <h2>Form add member</h2>
-                    <form className="form_box" onSubmit={handleSubmit}>
-                        <label>
-                            Name:
-                            <input
-                                onChange={(e) => handleChange(e)}
-                                required="required"
-                                type="text"
-                                name="name"
-                                value={data.name}
-                            />
-                        </label>
-                        <label>
-                            Age:
-                            <input
-                                onChange={(e) => handleChange(e)}
-                                required="required"
-                                type="text"
-                                name="age"
-                                value={data.age}
-                            />
-                        </label>
-                        <select
-                            onChange={(e) => handleChange(e)}
-                            name="type"
-                            value={data.type}
-                        >
-                            <option value="react">React</option>
-                            <option value="java">Java</option>
-                        </select>
-                        <button type="submit">Add member</button>
-                    </form>
-                </div>
-                ||
-                <div className="form_container">
+                    ||
                     <h2 style={{ color: 'red' }}>Form edit member</h2>
-                    <form className="form_box" onSubmit={handleEdit}>
-                        <label>
-                            Name:
-                            <input
-                                onChange={(e) => handleChange(e)}
-                                required="required"
-                                type="text"
-                                name="name"
-                                value={data.name}
-                            />
-                        </label>
-                        <label>
-                            Age:
-                            <input
-                                onChange={(e) => handleChange(e)}
-                                required="required"
-                                type="text"
-                                name="age"
-                                value={data.age}
-                            />
-                        </label>
-                        <select
+                }
+                <form className="form_box" onSubmit={(e) => { showAdd ? handleSubmit(e) : handleEdit(e) }}>
+                    <label>
+                        Name:
+                        <input
                             onChange={(e) => handleChange(e)}
-                            name="type"
-                            value={data.type}
-                            disabled
-                        >
-                            <option value="react">React</option>
-                            <option value="java">Java</option>
-                        </select>
-                        <button type="submit">Edit member</button>
-                    </form>
-                </div>
-            }
+                            ref={inputRef}
+                            required="required"
+                            type="text"
+                            name="name"
+                            value={data.name}
+                        />
+                    </label>
+                    <label>
+                        Age:
+                        <input
+                            onChange={(e) => handleChange(e)}
+                            required="required"
+                            type="number"
+                            name="age"
+                            value={data.age}
+                        />
+                    </label>
+                    <select
+                        onChange={(e) => handleChange(e)}
+                        name="type"
+                        value={data.type}
+                        disabled={!showAdd}
+                    >
+                        <option value="react">React</option>
+                        <option value="java">Java</option>
+                    </select>
+                    <button type="submit">Add member</button>
+                </form>
+            </div>
+
             <div className="form_container">
                 <h2 style={{ color: 'blue' }}>Search member</h2>
                 <form className="form_box" onSubmit={handleSearch}>
